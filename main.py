@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+import os
 
 SECRET_KEY = "8837fccb8a19b9a6e942bee4ccc78c6c9791c60f21ee1391219c9d233af763bb"
 ALGORITHM = "HS256"
@@ -13,7 +14,7 @@ db = {
     "walter": {
         "username": "gelo",
         "hashed_password": "",
-        "disabled": False
+        "enabled": False
     }
 }
 
@@ -29,7 +30,7 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: str
-    disabled: bool or None = None
+    enabled: int or None = None
 
 
 class UserInDB(User):
@@ -107,7 +108,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 # Check if the user token is expired or not
 async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)):
-    if current_user.disabled:
+    if not current_user.enabled:
         raise HTTPException(status_code=400, detail="Inactive user")
 
     return current_user
@@ -128,7 +129,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 # Sample path in checking if the token works
-@app.get("/users/me/", reponse_model=User)
+@app.get("/users/me/")
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
