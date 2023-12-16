@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from functools import lru_cache
 
-from database import SessionLocal
+
 from crud import crud
 from schemas import schemas
 from api import config
