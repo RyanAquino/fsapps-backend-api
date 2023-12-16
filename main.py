@@ -111,7 +111,7 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
 
 
 # Path used in creating the access token of the logged-in user
-@app.post("/token", response_model=Token)
+@app.post("/v1/auth/login", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
