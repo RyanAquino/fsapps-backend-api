@@ -7,3 +7,5 @@ python-dotenv==1.0.0
 mariadb==1.1.8
 cryptography==41.0.7
 sqlalchemy==2.0.23
+pydantic-settings==2.1.0
+pydantic==2.5.2

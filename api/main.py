@@ -1,20 +1,27 @@
-import os
-
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from functools import lru_cache
 
 from database import SessionLocal, engine
 from crud import crud
 from models import models
 from schemas import schemas
+from . import config
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "secret")
-ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", 5)
+
+@lru_cache
+def get_settings():
+    return config.Settings()
+
+
+settings = get_settings()
+SECRET_KEY = settings.secret_key
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_minutes
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/login")
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
