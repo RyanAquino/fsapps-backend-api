@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from functools import lru_cache
-from . import config
+from api import config
 
 
 @lru_cache
@@ -18,3 +18,4 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+Base.metadata.create_all(engine, checkfirst=True)
