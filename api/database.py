@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from functools import lru_cache
-from . import config
+from api import config
 
 
 @lru_cache

@@ -8,7 +8,7 @@ from database import SessionLocal, engine
 from crud import crud
 from models import models
 from schemas import schemas
-from . import config
+from api import config
 
 
 @lru_cache
@@ -18,7 +18,7 @@ def get_settings():
 
 settings = get_settings()
 SECRET_KEY = settings.secret_key
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_minutes
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/login")
