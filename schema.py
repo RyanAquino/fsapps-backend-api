@@ -1,6 +1,7 @@
-from dotenv import load_dotenv
 import os
+
 import mariadb
+from dotenv import load_dotenv
 
 
 # Converting array to dictionary
