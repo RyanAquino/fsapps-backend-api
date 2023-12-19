@@ -20,8 +20,6 @@ def get_settings():
 
 
 settings = get_settings()
-SECRET_KEY = settings.secret_key
-ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_minutes
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/auth/login")
@@ -117,8 +115,8 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect username or password",
                             headers={"WWW-Authenticate": "Bearer"})
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(user, settings.access_token_minutes)
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token = create_access_token(user, settings.access_token_expire_minutes)
     return {"access_token": access_token, "token_type": "bearer"}
 
 
