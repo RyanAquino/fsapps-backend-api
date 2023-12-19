@@ -12,7 +12,7 @@ class TokenData(BaseModel):
 
 class UserBase(BaseModel):
     username: str
-    is_enabled: str or None = None
+    is_enabled: bool or None = None
 
 
 class UserCreate(UserBase):
