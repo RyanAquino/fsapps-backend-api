@@ -3,14 +3,15 @@ from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from api.schemas import schemas
 from api.config import settings
-from api.user_dependencies import user_operations
+from api.user_dependencies import UserOperations
 
 router1 = APIRouter()
+user_operations = UserOperations()
 
 
-# Path used in creating the access token of the logged-in user
 @router1.post("/v1/auth/login", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Create an access token for the verified logged-in user"""
     user = user_operations.authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,

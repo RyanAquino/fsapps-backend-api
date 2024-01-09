@@ -12,7 +12,8 @@ from api.database import SessionLocal
 
 
 # Dependency
-def get_db():
+def init_db():
+    """Initialize the db generator"""
     db = SessionLocal()
     try:
         yield db
@@ -20,32 +21,33 @@ def get_db():
         db.close()
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/auth/login")
-
-
 class UserOperations:
-    @staticmethod
-    # Get request user if available in the database
-    def get_request_user(username: str, db: Session = next(get_db())):
-        db_user = crud.access_user.get_user_by_username(db, username=username)
+    def __init__(self):
+        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/auth/login")
+        self.db = next(init_db())
+
+    def get_request_user(self, username: str):
+        """Get the user information from the database using username"""
+        db_user = crud.access_user.get_user_by_username(self.db, username=username)
         if db_user is None:
             raise HTTPException(status_code=404, detail="User not found")
         return db_user
 
-    @staticmethod
-    # Verify if given password is equal to the hashed password given
-    def verify_password(plain_password, hashed_password):
-        return pwd_context.verify(plain_password, hashed_password)
+    def verify_password(self, plain_password, hashed_password):
+        """Check if the given password for the user is correct"""
+        return self.pwd_context.verify(plain_password, hashed_password)
 
-    @staticmethod
-    # Hash the given plain password
-    def get_password_hash(plain_password):
-        return pwd_context.hash(plain_password)
+    def get_password_hash(self, plain_password):
+        """Hash the given plain password"""
+        return self.pwd_context.hash(plain_password)
 
-    # Checks the given password and username if it is registered in the database
     def authenticate_user(self, username: str, password: str):
+        """Check if the user is registered in the database"""
         user = self.get_request_user(username)
+        user = dict(username=user.username,
+                    hashed_password=user.hashed_password,
+                    is_enabled=user.is_enabled)
         if not user:
             return False
         if not self.verify_password(password, user["hashed_password"]):
@@ -53,11 +55,11 @@ class UserOperations:
         return user
 
     @staticmethod
-    # Create JWT token with an expiry based on the given data
     def create_access_token(data: dict, expires_delta: timedelta or None = None):
+        """Create a JWT token with expiry"""
         to_encode = data.copy()
         if expires_delta:
-            expire = datetime.utcnow() + timedelta(minutes=expires_delta)
+            expire = datetime.utcnow() + expires_delta
         else:
             expire = datetime.utcnow() + timedelta(minutes=15)
 
@@ -65,8 +67,9 @@ class UserOperations:
         encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
         return encoded_jwt
 
-    # Check the given token if the details are matched in the database
-    def get_current_user(self, token: str = Depends(oauth2_scheme)):
+    def get_current_user(self):
+        """Get the current logged-in user and check if it is authenticated"""
+        token: str = Depends(self.oauth2_scheme)
         credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                              detail="Could not validate credentials",
                                              headers={"WWW-Authenticate": "Bearer"})
@@ -86,12 +89,11 @@ class UserOperations:
 
         return user
 
-    @staticmethod
-    # Check if the user token is expired or not
-    def get_current_active_user(current_user: schemas.User = get_request_user):
+    def get_current_active_user(self):
+        """Check if the token of the logged-in user is still active"""
+        current_user: schemas.User = self.get_current_user()
         if not current_user.enabled:
             raise HTTPException(status_code=400, detail="Inactive user")
         return
 
 
-user_operations = UserOperations()

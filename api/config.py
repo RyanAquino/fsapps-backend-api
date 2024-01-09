@@ -4,6 +4,7 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
+    """Initializing all the sensitive variables from the .env file"""
     secret_key: str = Field(alias='SECRET_KEY')
     access_token_expire_minutes: int = Field(alias='ACCESS_TOKEN_EXPIRE_MINUTES')
     database_url: str = Field(alias='DATABASE_URL')

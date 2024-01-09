@@ -4,6 +4,7 @@ from api.database import Base, engine
 
 
 class User(Base):
+    """Column model for registered_users"""
     __tablename__ = "registered_users"
 
     id = Column(Integer, primary_key=True)
