@@ -1,15 +1,26 @@
 import uvicorn
-from fastapi import FastAPI
-from routers.user_token import router1
 from config import settings
+from fastapi import FastAPI
+from routers.router import api_router
 
-app = FastAPI()
+from api.database import Base, engine
 
-app.include_router(router1, prefix="/v1/auth/login", tags=["User Token Router"])
+
+def create_app():
+    app = FastAPI()
+    app.include_router(api_router, prefix="/api/v1")
+    Base.metadata.create_all(engine, checkfirst=True)
+
+    return app
+
+
+app = create_app()
 
 
 if __name__ == "__main__":
-    uvicorn.run("api.main:app",
-                host=settings.host,
-                port=settings.port,
-                reload=settings.reload)
+    uvicorn.run(
+        "api.main:app",
+        host=settings.app_host,
+        port=settings.app_port,
+        reload=settings.app_debug,
+    )
