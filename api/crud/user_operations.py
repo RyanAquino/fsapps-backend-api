@@ -37,7 +37,7 @@ class UserOperations:
         user = self.db.query(User).where(User.username == username).first()
         if not user:
             return None
-        return user
+        return schemas.User.model_validate(user)
 
     def get_current_user(self):
         """Get the current logged-in user and check if it is authenticated"""
