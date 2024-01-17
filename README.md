@@ -16,20 +16,28 @@ Fiscal Apps API
 ```
 python -m venv venv
 ```
-##### Install required packages
+##### source to environment
 ```
-pip install -r requirements.txt
-```
-##### Copy and modify `.env.example` base on your needs
-```
-cp .env.example .env
+source venv/bin/activate
 ```
 ##### Navigate to application source
 ```
 cd api
 ```
-
+##### Copy and modify `.env.example` based on your needs
+```
+cp .env.example .env
+```
+##### Install required packages
+```
+pip install -r requirements.txt
+```
 ##### Run Application
 ```
-python main.py
+PYTHONPATH=.. python main.py
+```
+### Setup (Alternative)
+##### 
+```
+podman compose up 
 ```

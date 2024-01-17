@@ -37,9 +37,7 @@ def login_for_access_token(
         )
 
     payload = {
-        "id": user.id,
-        "username": user.username,
-        "is_enabled": user.is_enabled,
+        **user.dict(exclude="hashed_password"),
         "exp": datetime.datetime.now(datetime.timezone.utc)
         + timedelta(minutes=settings.access_token_expire_minutes),
     }
