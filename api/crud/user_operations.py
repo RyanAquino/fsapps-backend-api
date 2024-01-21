@@ -18,7 +18,7 @@ class AccessUser:
     def create_user(db: Session, user: schemas.UserCreate, hashed_password: str):
         """Create user in the database"""
         db_user = models.User(
-            email=user.email, hashed_password=hashed_password, is_enabled=True
+            username=user.username, hashed_password=hashed_password, is_enabled=True
         )
         db.add(db_user)
         db.commit()
@@ -68,4 +68,4 @@ class UserOperations:
         current_user: schemas.User = self.get_current_user()
         if not current_user.enabled:
             raise HTTPException(status_code=400, detail="Inactive user")
-        return
+        return schemas.User.model_validate(current_user)
