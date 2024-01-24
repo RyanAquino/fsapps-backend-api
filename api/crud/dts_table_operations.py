@@ -1,3 +1,4 @@
+from sqlalchemy.sql import text
 from api.database import SessionLocal
 from api.models.dts_table_models import (Operating_Cash_Balance,
                                          Deposits_Withdrawals_Operating_Cash,
@@ -8,7 +9,6 @@ from api.models.dts_table_models import (Operating_Cash_Balance,
                                          Income_Tax_Refunds_Issued,
                                          Federal_Tax_Deposits,
                                          Short_Term_Cash_Investments)
-from api.schemas import dts_table_schemas
 
 
 class DTSTableOperations:
@@ -26,27 +26,19 @@ class DTSTableOperations:
         }
         self.db = db
 
-    def get_all_data(self, table_name: str):
-        """Get all data from a specific table in dts tables"""
+    def get_filtered_data(self,
+                          table_name: str,
+                          **filters):
+        table = None
+        """Return filtered data from dts tables"""
         for table_obj in self.dts_tables.values():
             if table_obj.__name__.lower() == table_name.lower():
-                table_name = table_obj.__name__
-                return self.db.query(table_obj).all()
-        return None
+                table = table_obj
+                break
 
-    def get_data_using_fyear(self, table_name: str, fyear: int):
-        """Filter data using fiscal year"""
-        for table_obj in self.dts_tables.values():
-            if table_obj.__name__.lower() == table_name.lower():
-                table_name = table_obj.__name__
-                return self.db.query(table_obj).filter(table_obj.record_fiscal_year == fyear).all()
-        return None
-
-    # def get_data_using_cyear(self, table_name: str, cyear: int):
-    #     data = self.db.query(table_name).where(cyear).all()
-    #     if not data:
-    #         return None
-    #     return data
-
-    # def get_data_cyear_fyear(self, table_name: str, fyear: int, cyear: int):
-    #     data = self.db.query
+        statement = self.db.query(table)
+        for key, value in filters.items():
+            if value is not None:
+                filt = key + "=" + value
+                statement = statement.filter(text(filt))
+        return statement.all()
